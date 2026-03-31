@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MotoStore</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #f4f4f4; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: white; border-radius: 10px; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 30px; }
+        h2 { margin: 20px 0 15px; border-left: 4px solid #007bff; padding-left: 15px; }
+        .form-section { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        input, select, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; cursor: pointer; border: none; }
+        button:hover { background: #0056b3; }
+        .btn-danger { background: #dc3545; width: auto; padding: 5px 15px; }
+        .btn-danger:hover { background: #c82333; }
+        .produtos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white; }
+        .card img { width: 100%; height: 180px; object-fit: cover; }
+        .sem-imagem { height: 180px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; }
+        .card h3 { padding: 12px; }
+        .preco { padding: 0 12px; font-size: 20px; font-weight: bold; color: #28a745; }
+        .estoque { padding: 0 12px 12px; color: #666; }
+        .card form { padding: 0 12px 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f5f5f5; }
+        hr { margin: 30px 0; border-top: 2px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏍️ MotoStore</h1>
+        
+        <div class="form-section">
+            <h2>➕ Cadastrar Moto</h2>
+            <form action="/moto" method="post" enctype="multipart/form-data">
+                <input type="text" name="marca" placeholder="Marca" required>
+                <input type="text" name="modelo" placeholder="Modelo" required>
+                <input type="number" name="valor" placeholder="Preço (R$)" step="0.01" required>
+                <input type="number" name="quantidade" placeholder="Quantidade" required>
+                <input type="file" name="foto" accept="image/*">
+                <button type="submit">Cadastrar Moto</button>
+            </form>
+        </div>
+        
+        <h2>📋 Motos</h2>
+        <div class="produtos-grid">
+            <% if (motos.length === 0) { %><p>Nenhuma moto cadastrada.</p><% } %>
+            <% motos.forEach(moto => { %>
+                <div class="card">
+                    <% if (moto.fotoUrl) { %>
+                        <img src="<%= moto.fotoUrl %>">
+                    <% } else { %>
+                        <div class="sem-imagem">📸 Sem foto</div>
+                    <% } %>
+                    <h3><%= moto.marca %> <%= moto.modelo %></h3>
+                    <div class="preco">R$ <%= parseFloat(moto.valor).toFixed(2) %></div>
+                    <div class="estoque">Estoque: <%= moto.quantidade %></div>
+                    <form action="/moto/excluir/<%= moto.rowKey %>" method="post">
+                        <button type="submit" class="btn-danger">Excluir</button>
+                    </form>
+                </div>
+            <% }) %>
+        </div>
+        
+        <hr>
+        
+        <div class="form-section">
+            <h2>👤 Cadastrar Cliente</h2>
+            <form action="/cliente" method="post">
+                <input type="text" name="nome" placeholder="Nome" required>
+                <input type="email" name="email" placeholder="E-mail" required>
+                <input type="text" name="telefone" placeholder="Telefone">
+                <button type="submit">Cadastrar</button>
+            </form>
+        </div>
+        
+        <h2>📋 Clientes</h2>
+        <table>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Ações</th></thead>
+            <tbody>
+                <% if (clientes.length === 0) { %><tr><td colspan="4">Nenhum cliente</td></tr><% } %>
+                <% clientes.forEach(cliente => { %>
+                    <tr>
+                        <td><%= cliente.nome %></td>
+                        <td><%= cliente.email %></td>
+                        <td><%= cliente.telefone || '-' %></td>
+                        <td>
+                            <form action="/cliente/excluir/<%= cliente.rowKey %>" method="post">
+                                <button type="submit" class="btn-danger">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        
+        <hr>
+        
+        <div class="form-section">
+            <h2>🛒 Checkout</h2>
+            <form action="/checkout" method="post">
+                <select name="produtoId" required>
+                    <option value="">Selecione a Moto</option>
+                    <% motos.forEach(moto => { %>
+                        <option value="<%= moto.rowKey %>"><%= moto.marca %> <%= moto.modelo %> - R$ <%= moto.valor %></option>
+                    <% }) %>
+                </select>
+                <select name="clienteId" required>
+                    <option value="">Selecione o Cliente</option>
+                    <% clientes.forEach(cliente => { %>
+                        <option value="<%= cliente.rowKey %>"><%= cliente.nome %></option>
+                    <% }) %>
+                </select>
+                <select name="pagamento" required>
+                    <option value="">Pagamento</option>
+                    <option value="Credito">Cartão Crédito</option>
+                    <option value="Debito">Cartão Débito</option>
+                    <option value="PIX">PIX</option>
+                </select>
+                <select name="entrega" required>
+                    <option value="">Entrega</option>
+                    <option value="Retirada">Retirar na Loja</option>
+                    <option value="Entrega">Entrega</option>
+                </select>
+                <button type="submit">Finalizar</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

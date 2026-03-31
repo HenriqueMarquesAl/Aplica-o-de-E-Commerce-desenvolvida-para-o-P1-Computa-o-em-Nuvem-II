@@ -1,0 +1,16 @@
+{
+  "name": "loja-motos",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ejs": "^3.1.9",
+    "@azure/storage-blob": "^12.17.0",
+    "@azure/data-tables": "^13.2.1",
+    "uuid": "^9.0.1",
+    "multer": "^1.4.5-lts.1"
+  }
+}
