@@ -11,6 +11,6 @@
     "@azure/storage-blob": "^12.17.0",
     "@azure/data-tables": "^13.2.1",
     "uuid": "^9.0.1",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^2.0.2"
   }
 }
